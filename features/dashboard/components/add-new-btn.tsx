@@ -27,7 +27,7 @@ const AddNewButton = () => {
     toast("Playground created successfully");
     // Here you would typically handle the creation of a new playground
     // with the selected template data
-    console.log("Creating new playground:", data)
+    console.log("Creating new playground:", data);
     setIsModalOpen(false)
     router.push(`/playground/${res?.id}`)
   }
