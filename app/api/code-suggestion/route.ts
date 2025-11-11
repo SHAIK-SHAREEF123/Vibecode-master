@@ -1,4 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 
 interface CodeSuggestionRequest {
   fileContent: string
@@ -129,41 +131,40 @@ Generate suggestion:`
  */
 async function generateSuggestion(prompt: string): Promise<string> {
   try {
-    // Replace this with your actual AI service call
-    const response = await fetch("http://localhost:11434/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "codellama:latest",
-        prompt,
-        stream: false,
-        options: {
-          temperature: 0.7,
-          max_tokens: 300,
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+    // Select model ONCE here (correct)
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+    });
+
+    // ✅ DO NOT include `model:` again inside generateContent()
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }],
         },
-      }),
-    })
+      ],
+    });
 
-    if (!response.ok) {
-      throw new Error(`AI service error: ${response.statusText}`)
-    }
+    // ✅ Extract plain text safely
+    let suggestion = result.response.text();
 
-    const data = await response.json()
-    let suggestion = data.response
-
-    // Clean up the suggestion
+    // Clean fenced code blocks
     if (suggestion.includes("```")) {
-      const codeMatch = suggestion.match(/```[\w]*\n?([\s\S]*?)```/)
-      suggestion = codeMatch ? codeMatch[1].trim() : suggestion
+      const match = suggestion.match(/```[\w]*\n?([\s\S]*?)```/);
+      suggestion = match ? match[1].trim() : suggestion;
     }
 
-    // Remove cursor markers if present
-    suggestion = suggestion.replace(/\|CURSOR\|/g, "").trim()
+    // Remove cursor markers
+    suggestion = suggestion.replace(/\|CURSOR\|/g, "").trim();
 
-    return suggestion
+    return suggestion;
+
   } catch (error) {
-    console.error("AI generation error:", error)
-    return "// AI suggestion unavailable"
+    console.error("Gemini AI generation error:", error);
+    return "// AI suggestion unavailable";
   }
 }
 
