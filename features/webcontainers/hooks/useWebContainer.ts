@@ -62,7 +62,7 @@ export const useWebContainer = ({ templateData }: UseWebContainerProps): UseWebC
       const folderPath = pathParts.slice(0, -1).join('/'); // Extract folder path
 
       if (folderPath) {
-        await instance.fs.mkdir(folderPath, { recursive: true }); // Create folder structure recursively
+        await instance.fs.mkdir(folderPath, { recursive: true }); //If the parent directories (like "src" or "src/utils") don’t exist, they’ll be created automatically
       }
 
       // Write the file

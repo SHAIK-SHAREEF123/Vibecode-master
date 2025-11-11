@@ -134,7 +134,7 @@ export const useAISuggestions = (): UseAISuggestionsReturn => {
           ...currentState,
           suggestion: null,
           position: null,
-          decoration: [],
+          decoration: [], 
         };
       });
     },
