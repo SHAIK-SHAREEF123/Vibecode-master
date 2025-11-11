@@ -38,6 +38,9 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    serverComponentsExternalPackages: ["@prisma/client", ".prisma"],
+  },
 
   reactStrictMode: false,
 };
